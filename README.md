@@ -1,4 +1,4 @@
-::: {align="center"}
+ {align="center"}
 # Bhashantara
 
 ### English → Hindi Translation with Two Transformer Models
