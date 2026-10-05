@@ -1,0 +1,18 @@
+# Core API
+fastapi==0.115.0
+uvicorn[standard]==0.30.0
+python-multipart==0.0.9
+
+# NLLB fine-tuned model (HuggingFace)
+transformers>=5.0.0
+safetensors>=0.4.0
+torch  # CPU version: pip install torch --index-url https://download.pytorch.org/whl/cpu
+
+# Custom Transformer from scratch (TensorFlow)
+tensorflow-cpu>=2.17.0
+sentencepiece>=0.2.0
+
+# Data (for tokenizer generation)
+pandas
+pyarrow
+numpy

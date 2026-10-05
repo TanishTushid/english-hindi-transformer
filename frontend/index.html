@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>भाषांतर – English to Hindi Translator</title>
+  <meta name="description" content="AI-powered English to Hindi translation using a custom Transformer and NLLB model." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <!-- ── Background Orbs ── -->
+  <div class="bg-orbs" aria-hidden="true">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+
+  <div class="app-wrapper">
+
+    <!-- ── Header ── -->
+    <header class="header">
+      <div class="logo">
+        <div class="logo-icon" aria-hidden="true">🔤</div>
+        <div class="logo-text">
+          <h1>भाषांतर</h1>
+          <span class="tagline">English → Hindi AI Translator</span>
+        </div>
+      </div>
+      <div class="model-selector" role="group" aria-label="Select translation model">
+        <span class="model-label">Model</span>
+        <div class="toggle-group">
+          <button id="btn-nllb" class="toggle-btn active" onclick="selectModel('nllb')" aria-pressed="true">
+            <span class="model-badge nllb">NLLB</span>
+            <span>Fine-tuned</span>
+          </button>
+          <button id="btn-scratch" class="toggle-btn" onclick="selectModel('scratch')" aria-pressed="false">
+            <span class="model-badge scratch">⚡</span>
+            <span>From Scratch</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Status Bar ── -->
+    <div id="status-bar" class="status-bar" role="status" aria-live="polite"></div>
+
+    <!-- ── Main Translator Card ── -->
+    <main class="translator-card glass-card">
+      <div class="panels-row">
+
+        <!-- Input Panel -->
+        <div class="panel input-panel">
+          <div class="panel-header">
+            <div class="lang-tag">
+              <span class="flag">🇬🇧</span>
+              <span>English</span>
+            </div>
+            <div class="panel-actions">
+              <button class="icon-btn" id="btn-mic" onclick="toggleSpeech()" title="Speak to translate" aria-label="Toggle voice input">
+                🎤
+              </button>
+              <button class="icon-btn" onclick="clearInput()" title="Clear input" aria-label="Clear text">✕</button>
+            </div>
+          </div>
+          <textarea
+            id="input-text"
+            class="text-area"
+            placeholder="Type or paste English text here…"
+            rows="8"
+            maxlength="1000"
+            aria-label="English text input"
+            oninput="onInputChange()"
+          ></textarea>
+          <div class="panel-footer">
+            <span id="char-count" class="char-count">0 / 1000</span>
+            <button class="icon-btn small" onclick="pasteFromClipboard()" title="Paste from clipboard">📋 Paste</button>
+          </div>
+        </div>
+
+        <!-- Divider with Swap & Translate -->
+        <div class="divider-col">
+          <button id="translate-btn" class="translate-btn" onclick="translateText()" aria-label="Translate">
+            <span class="btn-icon">→</span>
+            <span class="btn-text">Translate</span>
+          </button>
+        </div>
+
+        <!-- Output Panel -->
+        <div class="panel output-panel">
+          <div class="panel-header">
+            <div class="lang-tag">
+              <span class="flag">🇮🇳</span>
+              <span>Hindi</span>
+            </div>
+            <div class="panel-actions">
+              <button class="icon-btn" onclick="speakOutput()" title="Listen to translation" aria-label="Speak translation">🔊</button>
+              <button class="icon-btn" onclick="copyOutput()" title="Copy translation" aria-label="Copy translation">📋</button>
+            </div>
+          </div>
+          <div id="output-area" class="output-area devanagari" aria-live="polite" aria-label="Hindi translation output">
+            <div class="placeholder-msg">Translation will appear here…</div>
+          </div>
+          <div class="panel-footer">
+            <div id="meta-info" class="meta-info"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ── Translate Button (bottom, mobile) ── -->
+      <div class="translate-btn-row">
+        <button class="translate-btn-wide" onclick="translateText()">
+          <span>✨ Translate</span>
+          <div id="spinner" class="spinner hidden" aria-hidden="true"></div>
+        </button>
+      </div>
+    </main>
+
+    <!-- ── Examples ── -->
+    <section class="examples-section" aria-label="Example sentences">
+      <p class="examples-label">Try an example:</p>
+      <div class="examples-list">
+        <button class="example-pill" onclick="setExample('Hello, how are you?')">Hello, how are you?</button>
+        <button class="example-pill" onclick="setExample('India is a beautiful country.')">India is a beautiful country.</button>
+        <button class="example-pill" onclick="setExample('I love learning new languages.')">I love learning new languages.</button>
+        <button class="example-pill" onclick="setExample('The weather today is very nice.')">The weather today is very nice.</button>
+        <button class="example-pill" onclick="setExample('Please help me find the station.')">Please help me find the station.</button>
+      </div>
+    </section>
+
+    <!-- ── Model Info Cards ── -->
+    <section class="info-grid" aria-label="Model information">
+      <div class="info-card glass-card" id="card-nllb">
+        <div class="info-card-header">
+          <span class="info-icon">🤗</span>
+          <strong>NLLB Fine-tuned</strong>
+          <span id="nllb-status" class="status-dot" aria-label="Model status"></span>
+        </div>
+        <p>Fine-tuned NLLB-200 (M2M architecture, 600M params) on English-Hindi pairs. High quality neural machine translation using HuggingFace Transformers.</p>
+        <div class="info-tags">
+          <span class="tag">HuggingFace</span>
+          <span class="tag">Beam Search</span>
+          <span class="tag">~600M params</span>
+        </div>
+      </div>
+      <div class="info-card glass-card" id="card-scratch">
+        <div class="info-card-header">
+          <span class="info-icon">🧠</span>
+          <strong>Transformer from Scratch</strong>
+          <span id="scratch-status" class="status-dot" aria-label="Model status"></span>
+        </div>
+        <p>Custom-built Transformer in TensorFlow/Keras with 2 encoder + 2 decoder layers (d_model=128, 4 heads). Trained from scratch on 1.3M+ sentence pairs.</p>
+        <div class="info-tags">
+          <span class="tag">TensorFlow</span>
+          <span class="tag">Greedy Decode</span>
+          <span class="tag">SentencePiece BPE</span>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Built with ❤️ · FastAPI + TensorFlow + HuggingFace Transformers
+    </footer>
+  </div>
+
+  <div id="toast" class="toast" role="alert" aria-live="assertive"></div>
+
+  <script src="/static/app.js?v=translate-text-handler"></script>
+</body>
+</html>

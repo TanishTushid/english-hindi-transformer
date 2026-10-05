@@ -1,0 +1,16 @@
+{
+    "d_model": 128,
+    "num_heads": 4,
+    "num_encoder_layers": 2,
+    "num_decoder_layers": 2,
+    "d_ff": 512,
+    "dropout_rate": 0.1,
+    "english_vocab_size": 16000,
+    "hindi_vocab_size": 16000,
+    "max_english_len": 56,
+    "max_hindi_len": 64,
+    "pad_id": 0,
+    "unk_id": 1,
+    "bos_id": 2,
+    "eos_id": 3
+}
